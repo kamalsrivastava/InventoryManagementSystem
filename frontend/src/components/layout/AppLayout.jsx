@@ -6,9 +6,12 @@ export default function AppLayout({ children }) {
   return (
     <div className="app">
       <Sidebar />
-      {/* keyed by path so each route mount replays the entrance animation */}
-      <main className="content animate-in" key={location.pathname}>
-        {children}
+      {/* .content is the only scroll container (app shell); keyed by path so
+          each route mount replays the entrance animation */}
+      <main className="content">
+        <div className="content-inner animate-in" key={location.pathname}>
+          {children}
+        </div>
       </main>
     </div>
   );

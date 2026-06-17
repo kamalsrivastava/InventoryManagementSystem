@@ -38,17 +38,22 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 html {
   scroll-behavior: smooth;
-  /* Solid base behind the body so macOS/iOS overscroll bounce never reveals
-     a white gap at the top or bottom. */
   background-color: #f1f1fb;
-  min-height: 100%;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  /* The document itself does not scroll — only .content does (app shell).
+     This removes the page-level overscroll that exposed a white gap. */
+  overflow: hidden;
   font-family: "Inter", system-ui, -apple-system, Roboto, sans-serif;
   background: var(--grad-app);
   background-attachment: fixed;
@@ -140,7 +145,8 @@ a {
 /* ---------------- Layout ---------------- */
 .app {
   display: flex;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -148,13 +154,12 @@ a {
   background: var(--grad-sidebar);
   color: #e2e8f0;
   padding: 26px 18px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  height: 100%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow-y: auto;
   box-shadow: var(--shadow-lg);
   z-index: 10;
 }
@@ -244,9 +249,17 @@ a {
 
 .content {
   flex: 1;
+  min-width: 0;
+  min-height: 0; /* allow this flex child to scroll instead of the document */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 30px 36px 48px;
+}
+
+.content-inner {
   max-width: 1240px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .page-header {
