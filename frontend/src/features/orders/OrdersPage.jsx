@@ -13,9 +13,11 @@ import { ordersApi } from "../../api/services/orders.js";
 import { formatCurrency } from "../../utils/format.js";
 import { extractError } from "../../utils/apiError.js";
 import { useToast } from "../../context/ToastContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function OrdersPage() {
   const toast = useToast();
+  const { requireAuth } = useAuth();
   const { orders, products, customers, loading, reload } = useOrders();
   const [showForm, setShowForm] = useState(false);
   const [detail, setDetail] = useState(null);
@@ -85,7 +87,7 @@ export default function OrdersPage() {
             variant="link"
             size="sm"
             style={{ color: "var(--danger)" }}
-            onClick={() => setDeleteTarget(o)}
+            onClick={() => requireAuth(() => setDeleteTarget(o))}
           >
             <XCircle size={14} /> Cancel
           </Button>
@@ -101,7 +103,7 @@ export default function OrdersPage() {
           <h2>Orders</h2>
           <p className="subtitle">{orders.length} orders placed</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => requireAuth(() => setShowForm(true))}>
           <Plus size={17} /> Create Order
         </Button>
       </div>

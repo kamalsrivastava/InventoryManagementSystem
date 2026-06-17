@@ -129,21 +129,42 @@ Base URL: `http://localhost:8000`. Interactive docs at `/docs`.
 |--------|------|-------------|
 | GET | `/dashboard/summary` | Totals + low-stock product list |
 
+### Authentication
+JWT-based auth with bcrypt-hashed (salted) passwords. **Reads (GET) are public**
+so the dashboard demos instantly; **writes (POST/PUT/DELETE) require a bearer token.**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/auth/register` | Create an account (email + password) |
+| POST | `/auth/login` | Returns `{ access_token }` |
+| GET | `/auth/me` | Current user (requires token) |
+
+Send the token on protected requests as `Authorization: Bearer <token>`.
+In Swagger (`/docs`), click **Authorize** and paste the token.
+
 ### Example requests
 ```bash
-# Create a product (prices are in INR)
-curl -X POST http://localhost:8000/products \
+# Register + log in to get a token (writes require it)
+curl -X POST http://localhost:8000/auth/register \
   -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"secret123"}'
+TOKEN=$(curl -s -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"secret123"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["access_token"])')
+
+# Create a product (prices are in INR) — note the Authorization header
+curl -X POST http://localhost:8000/products \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
   -d '{"name":"Wireless Mouse","sku":"WM-001","price":1299,"quantity":100}'
 
 # Create a customer
 curl -X POST http://localhost:8000/customers \
-  -H "Content-Type: application/json" \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
   -d '{"full_name":"Aarav Sharma","email":"aarav.sharma@example.com","phone":"+91 98765 43210"}'
 
 # Create an order (one or more products)
 curl -X POST http://localhost:8000/orders \
-  -H "Content-Type: application/json" \
+  -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" \
   -d '{"customer_id":1,"items":[{"product_id":1,"quantity":3}]}'
 ```
 

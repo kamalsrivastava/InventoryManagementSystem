@@ -10,9 +10,11 @@ import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 import { customersApi } from "../../api/services/customers.js";
 import { extractError } from "../../utils/apiError.js";
 import { useToast } from "../../context/ToastContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function CustomersPage() {
   const toast = useToast();
+  const { requireAuth } = useAuth();
   const { customers, loading, reload } = useCustomers();
   const [showForm, setShowForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -66,7 +68,7 @@ export default function CustomersPage() {
           variant="link"
           size="sm"
           style={{ color: "var(--danger)" }}
-          onClick={() => setDeleteTarget(c)}
+          onClick={() => requireAuth(() => setDeleteTarget(c))}
         >
           <Trash2 size={14} /> Delete
         </Button>
@@ -81,7 +83,7 @@ export default function CustomersPage() {
           <h2>Customers</h2>
           <p className="subtitle">{customers.length} customers registered</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => requireAuth(() => setShowForm(true))}>
           <Plus size={17} /> Add Customer
         </Button>
       </div>

@@ -9,9 +9,11 @@ from app.api.deps import get_db
 from app.db.base import Base
 from app.main import app
 
+TEST_USER = {"email": "tester@example.com", "password": "secret123"}
+
 
 @pytest.fixture
-def client():
+def _session_factory():
     # In-memory SQLite shared across the connection pool for the test's lifetime.
     engine = create_engine(
         "sqlite://",
@@ -29,10 +31,25 @@ def client():
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
+    yield TestingSession
     app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def anon_client(_session_factory):
+    """Unauthenticated client (no Authorization header)."""
+    with TestClient(app) as c:
+        yield c
+
+
+@pytest.fixture
+def client(anon_client):
+    """Authenticated client: registers a user, logs in, sets the bearer token."""
+    anon_client.post("/auth/register", json=TEST_USER)
+    token = anon_client.post("/auth/login", json=TEST_USER).json()["access_token"]
+    anon_client.headers.update({"Authorization": f"Bearer {token}"})
+    return anon_client
 
 
 @pytest.fixture

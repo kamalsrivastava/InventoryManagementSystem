@@ -12,9 +12,11 @@ import { productsApi } from "../../api/services/products.js";
 import { formatCurrency } from "../../utils/format.js";
 import { extractError } from "../../utils/apiError.js";
 import { useToast } from "../../context/ToastContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function ProductsPage() {
   const toast = useToast();
+  const { requireAuth } = useAuth();
   const { products, loading, reload } = useProducts();
   const [formState, setFormState] = useState(null); // null | {} | product
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -55,14 +57,14 @@ export default function ProductsPage() {
       width: 160,
       render: (p) => (
         <div className="row-actions">
-          <Button variant="link" size="sm" onClick={() => setFormState(p)}>
+          <Button variant="link" size="sm" onClick={() => requireAuth(() => setFormState(p))}>
             <Pencil size={14} /> Edit
           </Button>
           <Button
             variant="link"
             size="sm"
             style={{ color: "var(--danger)" }}
-            onClick={() => setDeleteTarget(p)}
+            onClick={() => requireAuth(() => setDeleteTarget(p))}
           >
             <Trash2 size={14} /> Delete
           </Button>
@@ -78,7 +80,7 @@ export default function ProductsPage() {
           <h2>Products</h2>
           <p className="subtitle">{products.length} products in your catalog</p>
         </div>
-        <Button onClick={() => setFormState({})}>
+        <Button onClick={() => requireAuth(() => setFormState({}))}>
           <Plus size={17} /> Add Product
         </Button>
       </div>

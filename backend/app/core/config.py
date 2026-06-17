@@ -28,6 +28,12 @@ class Settings(BaseSettings):
     # --- Business rules ---
     low_stock_threshold: int = 10
 
+    # --- Auth / JWT ---
+    # Override JWT_SECRET in every deployed environment with a strong value.
+    jwt_secret: str = "A1B2C3D4E5F*G$H!I@J&"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24  # 1 day
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @field_validator("database_url")

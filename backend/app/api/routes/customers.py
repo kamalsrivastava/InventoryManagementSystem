@@ -1,14 +1,21 @@
 """Customer endpoints."""
 from fastapi import APIRouter, Depends, status
 
-from app.api.deps import get_customer_service
+from app.api.deps import get_current_user, get_customer_service
 from app.schemas.customer import CustomerCreate, CustomerRead
 from app.services.customer_service import CustomerService
 
 router = APIRouter(prefix="/customers", tags=["customers"])
 
+auth_required = [Depends(get_current_user)]
 
-@router.post("", response_model=CustomerRead, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "",
+    response_model=CustomerRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=auth_required,
+)
 def create_customer(
     payload: CustomerCreate, service: CustomerService = Depends(get_customer_service)
 ):
@@ -27,7 +34,11 @@ def get_customer(
     return service.get(customer_id)
 
 
-@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{customer_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=auth_required,
+)
 def delete_customer(
     customer_id: int, service: CustomerService = Depends(get_customer_service)
 ):

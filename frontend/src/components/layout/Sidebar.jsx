@@ -5,7 +5,10 @@ import {
   Users,
   ShoppingCart,
   Boxes,
+  LogIn,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -15,6 +18,8 @@ const links = [
 ];
 
 export default function Sidebar() {
+  const { isAuthenticated, user, openLogin, logout } = useAuth();
+
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -41,9 +46,28 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <strong style={{ color: "#e0e7ff" }}>Inventory & Orders</strong>
-        <br />
-        v1.0 · Powered By Ethara AI
+        {isAuthenticated ? (
+          <div className="auth-box">
+            <div className="auth-who">
+              <span className="auth-dot" />
+              <span className="auth-email" title={user?.email}>
+                {user?.email || "Signed in"}
+              </span>
+            </div>
+            <button className="btn secondary sm auth-btn" onClick={logout}>
+              <LogOut size={15} /> Sign out
+            </button>
+          </div>
+        ) : (
+          <div className="auth-box">
+            <span style={{ color: "#a5b4fc", fontSize: 12 }}>
+              Viewing as guest · sign in to manage
+            </span>
+            <button className="btn sm auth-btn" onClick={() => openLogin()}>
+              <LogIn size={15} /> Sign in
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

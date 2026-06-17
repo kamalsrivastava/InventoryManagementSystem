@@ -247,6 +247,40 @@ a {
   color: #a5b4fc;
 }
 
+.auth-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e0e7ff;
+}
+
+.auth-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+  flex-shrink: 0;
+}
+
+.auth-email {
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-btn {
+  width: 100%;
+}
+
 .content {
   flex: 1;
   min-width: 0;

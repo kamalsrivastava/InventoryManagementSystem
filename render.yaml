@@ -26,3 +26,5 @@ services:
         sync: false            # set to your Netlify URL in the dashboard
       - key: LOW_STOCK_THRESHOLD
         value: "10"
+      - key: JWT_SECRET
+        generateValue: true    # Render generates a strong secret (not in repo)
