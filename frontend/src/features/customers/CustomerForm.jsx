@@ -43,18 +43,18 @@ export default function CustomerForm({ onClose, onSaved }) {
     <Modal title="Add Customer" onClose={onClose}>
       <form onSubmit={submit}>
         <FormField label="Full Name" error={errors.full_name}>
-          <input value={form.full_name} onChange={set("full_name")} placeholder="Jane Doe" />
+          <input value={form.full_name} onChange={set("full_name")} placeholder="Aarav Sharma" />
         </FormField>
         <FormField label="Email" error={errors.email}>
           <input
             type="email"
             value={form.email}
             onChange={set("email")}
-            placeholder="jane@example.com"
+            placeholder="aarav.sharma@example.com"
           />
         </FormField>
         <FormField label="Phone" error={errors.phone}>
-          <input value={form.phone} onChange={set("phone")} placeholder="+1 555 123 4567" />
+          <input value={form.phone} onChange={set("phone")} placeholder="+91 98765 43210" />
         </FormField>
         <div className="form-actions">
           <Button variant="secondary" onClick={onClose}>

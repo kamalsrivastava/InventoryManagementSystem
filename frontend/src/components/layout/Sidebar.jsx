@@ -43,7 +43,7 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         <strong style={{ color: "#e0e7ff" }}>Inventory & Orders</strong>
         <br />
-        v1.0 · FastAPI + React
+        v1.0 · Powered By Ethara AI
       </div>
     </aside>
   );

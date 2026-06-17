@@ -131,15 +131,15 @@ Base URL: `http://localhost:8000`. Interactive docs at `/docs`.
 
 ### Example requests
 ```bash
-# Create a product
+# Create a product (prices are in INR)
 curl -X POST http://localhost:8000/products \
   -H "Content-Type: application/json" \
-  -d '{"name":"Wireless Mouse","sku":"WM-001","price":19.99,"quantity":100}'
+  -d '{"name":"Wireless Mouse","sku":"WM-001","price":1299,"quantity":100}'
 
 # Create a customer
 curl -X POST http://localhost:8000/customers \
   -H "Content-Type: application/json" \
-  -d '{"full_name":"Jane Doe","email":"jane@example.com","phone":"+1 555 123 4567"}'
+  -d '{"full_name":"Aarav Sharma","email":"aarav.sharma@example.com","phone":"+91 98765 43210"}'
 
 # Create an order (one or more products)
 curl -X POST http://localhost:8000/orders \

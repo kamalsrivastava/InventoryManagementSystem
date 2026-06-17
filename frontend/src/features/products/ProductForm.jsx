@@ -68,7 +68,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
             min="0"
             value={form.price}
             onChange={set("price")}
-            placeholder="19.99"
+            placeholder="1499"
           />
         </FormField>
         <FormField label="Quantity in Stock" error={errors.quantity}>
