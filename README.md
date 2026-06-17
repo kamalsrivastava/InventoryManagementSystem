@@ -65,6 +65,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 # point at a local Postgres instance:
 export DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/inventory"
+alembic upgrade head                      # create the schema
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -217,40 +218,104 @@ The browser-direct-CORS setup deploys cleanly to most free hosts. Below is a
 
 ---
 
+## Backend architecture
+
+The backend follows a layered architecture so HTTP concerns, business logic,
+and data access stay decoupled and independently testable:
+
+```
+HTTP request
+   │
+   ▼
+api/routes     →  thin controllers (validation via Pydantic schemas)
+   │
+   ▼
+services       →  business logic & transaction boundaries; raise domain errors
+   │
+   ▼
+repositories   →  data access (queries, row locking); never commit
+   │
+   ▼
+models         →  SQLAlchemy ORM entities
+```
+
+Domain exceptions (`core/exceptions.py`) are raised by services and translated
+to HTTP responses by a central handler (`api/error_handlers.py`), keeping the
+business layer framework-agnostic.
+
+## Running tests & migrations
+
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+
+pytest                 # run the test suite (SQLite-backed, no DB needed)
+alembic upgrade head   # apply migrations (needs a running Postgres)
+alembic downgrade -1   # roll back the last migration
+```
+
+In Docker the container entrypoint runs `alembic upgrade head` automatically
+before starting the API server.
+
 ## Project structure
 
 ```
 InventoryManagementSystem/
-├── docker-compose.yml          # orchestrates db + backend + frontend
-├── .env.example                # configuration template (no secrets)
+├── docker-compose.yml              # orchestrates db + backend + frontend
+├── .env.example                    # configuration template (no secrets)
 ├── .gitignore
 ├── README.md
 ├── backend/
-│   ├── Dockerfile              # python:3.12-slim, non-root, healthcheck
+│   ├── Dockerfile                  # python:3.12-slim, non-root, healthcheck
+│   ├── entrypoint.sh               # run migrations, then start uvicorn
 │   ├── .dockerignore
-│   ├── requirements.txt
+│   ├── alembic.ini
+│   ├── pyproject.toml              # pytest & ruff config
+│   ├── requirements.txt            # runtime deps
+│   ├── requirements-dev.txt        # + test/lint deps
+│   ├── migrations/                 # Alembic migration environment
+│   │   ├── env.py
+│   │   └── versions/0001_initial.py
+│   ├── tests/                      # pytest suite (products/customers/orders)
+│   │   ├── conftest.py
+│   │   └── test_*.py
 │   └── app/
-│       ├── main.py             # app, CORS, startup, routers
-│       ├── config.py           # env-driven settings
-│       ├── database.py         # engine, session, get_db
-│       ├── models.py           # Product, Customer, Order, OrderItem
-│       ├── schemas.py          # Pydantic validation schemas
-│       └── routers/
-│           ├── products.py
-│           ├── customers.py
-│           ├── orders.py       # stock check + total calc + restock
-│           └── dashboard.py
+│       ├── main.py                 # application factory (CORS, routers, errors)
+│       ├── core/                   # config, logging, domain exceptions
+│       ├── db/                     # engine, session, declarative base
+│       ├── models/                 # Product, Customer, Order, OrderItem
+│       ├── schemas/                # Pydantic request/response models
+│       ├── repositories/           # data-access layer
+│       ├── services/               # business logic (stock, totals, restock)
+│       └── api/
+│           ├── deps.py             # dependency providers
+│           ├── error_handlers.py   # domain error → HTTP mapping
+│           ├── router.py           # route aggregation
+│           └── routes/             # products, customers, orders, dashboard, health
 └── frontend/
-    ├── Dockerfile              # multi-stage node build → nginx:alpine
-    ├── nginx.conf              # SPA history fallback
+    ├── Dockerfile                  # multi-stage node build → nginx:alpine
+    ├── nginx.conf                  # SPA history fallback
     ├── .dockerignore
     ├── .env.example
     ├── package.json
     ├── vite.config.js
     ├── index.html
     └── src/
-        ├── main.jsx, App.jsx
-        ├── api/client.js       # axios client + error normalisation
-        ├── components/         # Toast, Modal, ConfirmDialog
-        └── pages/              # Dashboard, Products, Customers, Orders
+        ├── main.jsx, App.jsx, routes.jsx
+        ├── api/                    # axios client + per-resource service modules
+        │   ├── client.js
+        │   └── services/           # products, customers, orders, dashboard
+        ├── components/
+        │   ├── common/             # Button, Modal, DataTable, Badge, FormField, …
+        │   └── layout/             # AppLayout, Sidebar
+        ├── context/                # ToastContext
+        ├── hooks/                  # useAsync
+        ├── features/               # feature modules (page + form + hook each)
+        │   ├── dashboard/
+        │   ├── products/
+        │   ├── customers/
+        │   └── orders/
+        ├── utils/                  # apiError, format, validators
+        └── styles/                 # global.css
 ```
