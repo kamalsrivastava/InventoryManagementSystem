@@ -5,5 +5,7 @@ set -e
 echo "Running database migrations..."
 alembic upgrade head
 
-echo "Starting API server..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+# Hosts like Render inject the port to bind via $PORT; default to 8000 locally.
+PORT="${PORT:-8000}"
+echo "Starting API server on port ${PORT}..."
+exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT}"

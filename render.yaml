@@ -1,0 +1,28 @@
+# Render Blueprint — provisions the backend API and a free PostgreSQL DB.
+# In the Render dashboard: New → Blueprint → connect this repo. Render reads
+# this file, creates both resources, and wires DATABASE_URL automatically.
+#
+# After the first deploy, set CORS_ORIGINS (in the backend service's
+# Environment tab) to your Netlify URL, e.g. https://your-site.netlify.app
+databases:
+  - name: inventory-db
+    databaseName: inventory
+    user: inventory
+    plan: free
+
+services:
+  - type: web
+    name: inventory-backend
+    runtime: docker
+    rootDir: backend          # Render builds backend/Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+            name: inventory-db
+            property: connectionString
+      - key: CORS_ORIGINS
+        sync: false            # set to your Netlify URL in the dashboard
+      - key: LOW_STOCK_THRESHOLD
+        value: "10"

@@ -180,41 +180,17 @@ curl -X POST http://localhost:8000/orders \
 
 ## Deploying for free
 
-The browser-direct-CORS setup deploys cleanly to most free hosts. Below is a
-**Render** walkthrough; **Railway** notes follow.
+Full step-by-step instructions are in **[DEPLOYMENT.md](DEPLOYMENT.md)** —
+a 100% free setup (no credit card):
 
-### Option A — Render (free tier)
+- **Backend + PostgreSQL → Render** (free tier; a `render.yaml` Blueprint
+  provisions both and wires `DATABASE_URL` automatically).
+- **Frontend → Netlify** (free tier; `frontend/netlify.toml` sets the build
+  and SPA redirect).
+- Optional **Neon** free Postgres for a database that never expires.
 
-1. **Push this repo to GitHub.**
-2. **PostgreSQL**: Render dashboard → *New → PostgreSQL* (free). Copy the
-   *Internal/External Database URL*. Render gives a `postgres://…` URL — the
-   backend expects the SQLAlchemy form, so prefix it:
-   `postgresql+psycopg2://…` (replace the leading `postgres://`).
-3. **Backend**: *New → Web Service* → connect the repo → set
-   **Root Directory** to `backend`, **Runtime** to *Docker*. Add env vars:
-   - `DATABASE_URL` = the adjusted URL from step 2
-   - `CORS_ORIGINS` = your frontend URL (fill in after step 4, then redeploy)
-   - `LOW_STOCK_THRESHOLD` = `10`
-   Note the service URL, e.g. `https://ims-api.onrender.com`.
-4. **Frontend**: *New → Static Site* → **Root Directory** `frontend`,
-   **Build Command** `npm install && npm run build`, **Publish Directory**
-   `dist`. Add env var `VITE_API_URL` = the backend URL from step 3.
-   Note the static-site URL, e.g. `https://ims-ui.onrender.com`.
-5. Go back to the **backend** and set `CORS_ORIGINS` to the frontend URL from
-   step 4, then redeploy. Done.
-
-### Option B — Railway
-
-1. New project → *Deploy from GitHub repo*.
-2. Add a **PostgreSQL** plugin; Railway provides `DATABASE_URL`
-   (prefix it with `postgresql+psycopg2://` form as above).
-3. Add two services pointing at `backend/` and `frontend/` (Docker). Set the
-   same env vars (`DATABASE_URL`, `CORS_ORIGINS`, `VITE_API_URL`).
-4. Generate public domains for both and cross-fill the URLs.
-
-> **Note on free hosting:** the browser must reach the backend directly, so
-> `VITE_API_URL` and `CORS_ORIGINS` must use the **public** URLs of the
-> deployed services (not `localhost`).
+The two env vars that connect everything: the frontend's `VITE_API_URL` points
+at the backend URL, and the backend's `CORS_ORIGINS` lists the frontend URL.
 
 ---
 

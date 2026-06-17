@@ -1,0 +1,17 @@
+# Netlify configuration for the React frontend.
+# In Netlify: "Add new site" → import this repo. Netlify reads this file.
+# Set VITE_API_URL (Site settings → Environment variables) to your Render
+# backend URL, e.g. https://inventory-backend.onrender.com — it is baked into
+# the static bundle at build time.
+
+[build]
+  base = "frontend"          # build from the frontend/ subdirectory
+  command = "npm run build"
+  publish = "dist"
+
+# Single-page-app fallback: serve index.html for any unknown path so that
+# client-side routes (/products, /orders, …) work on refresh / direct links.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
