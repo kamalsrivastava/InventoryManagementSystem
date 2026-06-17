@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Plus, Pencil, Trash2, Package } from "lucide-react";
 import { useProducts } from "./useProducts.js";
 import ProductForm from "./ProductForm.jsx";
 import Button from "../../components/common/Button.jsx";
 import Badge from "../../components/common/Badge.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
-import Spinner from "../../components/common/Spinner.jsx";
+import { SkeletonTable } from "../../components/common/Spinner.jsx";
 import EmptyState from "../../components/common/EmptyState.jsx";
 import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 import { productsApi } from "../../api/services/products.js";
@@ -55,7 +56,7 @@ export default function ProductsPage() {
       render: (p) => (
         <div className="row-actions">
           <Button variant="link" size="sm" onClick={() => setFormState(p)}>
-            Edit
+            <Pencil size={14} /> Edit
           </Button>
           <Button
             variant="link"
@@ -63,7 +64,7 @@ export default function ProductsPage() {
             style={{ color: "var(--danger)" }}
             onClick={() => setDeleteTarget(p)}
           >
-            Delete
+            <Trash2 size={14} /> Delete
           </Button>
         </div>
       ),
@@ -73,14 +74,19 @@ export default function ProductsPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>Products</h2>
-        <Button onClick={() => setFormState({})}>+ Add Product</Button>
+        <div>
+          <h2>Products</h2>
+          <p className="subtitle">{products.length} products in your catalog</p>
+        </div>
+        <Button onClick={() => setFormState({})}>
+          <Plus size={17} /> Add Product
+        </Button>
       </div>
 
       {loading ? (
-        <Spinner label="Loading products…" />
+        <SkeletonTable />
       ) : products.length === 0 ? (
-        <EmptyState>No products yet. Add your first one.</EmptyState>
+        <EmptyState icon={Package}>No products yet. Add your first one.</EmptyState>
       ) : (
         <DataTable columns={columns} rows={products} />
       )}

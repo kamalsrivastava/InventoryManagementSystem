@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Plus, Trash2, Users, Mail, Phone } from "lucide-react";
 import { useCustomers } from "./useCustomers.js";
 import CustomerForm from "./CustomerForm.jsx";
 import Button from "../../components/common/Button.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
-import Spinner from "../../components/common/Spinner.jsx";
+import { SkeletonTable } from "../../components/common/Spinner.jsx";
 import EmptyState from "../../components/common/EmptyState.jsx";
 import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 import { customersApi } from "../../api/services/customers.js";
@@ -38,12 +39,28 @@ export default function CustomersPage() {
 
   const columns = [
     { key: "full_name", header: "Name" },
-    { key: "email", header: "Email" },
-    { key: "phone", header: "Phone" },
+    {
+      key: "email",
+      header: "Email",
+      render: (c) => (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "var(--muted)" }}>
+          <Mail size={14} /> {c.email}
+        </span>
+      ),
+    },
+    {
+      key: "phone",
+      header: "Phone",
+      render: (c) => (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "var(--muted)" }}>
+          <Phone size={14} /> {c.phone}
+        </span>
+      ),
+    },
     {
       key: "actions",
       header: "Actions",
-      width: 100,
+      width: 110,
       render: (c) => (
         <Button
           variant="link"
@@ -51,7 +68,7 @@ export default function CustomersPage() {
           style={{ color: "var(--danger)" }}
           onClick={() => setDeleteTarget(c)}
         >
-          Delete
+          <Trash2 size={14} /> Delete
         </Button>
       ),
     },
@@ -60,14 +77,19 @@ export default function CustomersPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>Customers</h2>
-        <Button onClick={() => setShowForm(true)}>+ Add Customer</Button>
+        <div>
+          <h2>Customers</h2>
+          <p className="subtitle">{customers.length} customers registered</p>
+        </div>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus size={17} /> Add Customer
+        </Button>
       </div>
 
       {loading ? (
-        <Spinner label="Loading customers…" />
+        <SkeletonTable />
       ) : customers.length === 0 ? (
-        <EmptyState>No customers yet. Add your first one.</EmptyState>
+        <EmptyState icon={Users}>No customers yet. Add your first one.</EmptyState>
       ) : (
         <DataTable columns={columns} rows={customers} />
       )}

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import Modal from "../../components/common/Modal.jsx";
 import Button from "../../components/common/Button.jsx";
 import FormField from "../../components/common/FormField.jsx";
@@ -117,12 +118,13 @@ export default function OrderForm({ products, customers, onClose, onSaved }) {
             );
           })}
           <Button variant="secondary" size="sm" onClick={addLine}>
-            + Add product
+            <Plus size={15} /> Add product
           </Button>
         </div>
 
-        <div style={{ textAlign: "right", fontWeight: 700, margin: "12px 0" }}>
-          Estimated total: {formatCurrency(estimatedTotal)}
+        <div className="order-total">
+          <span>Estimated total</span>
+          <span className="amount">{formatCurrency(estimatedTotal)}</span>
         </div>
 
         {formError && <div className="error-text">{formError}</div>}

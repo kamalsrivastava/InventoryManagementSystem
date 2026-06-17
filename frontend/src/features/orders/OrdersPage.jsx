@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
+import { Plus, Eye, XCircle, ShoppingCart, CheckCircle2 } from "lucide-react";
 import { useOrders } from "./useOrders.js";
 import OrderForm from "./OrderForm.jsx";
 import OrderDetail from "./OrderDetail.jsx";
 import Button from "../../components/common/Button.jsx";
 import Badge from "../../components/common/Badge.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
-import Spinner from "../../components/common/Spinner.jsx";
+import { SkeletonTable } from "../../components/common/Spinner.jsx";
 import EmptyState from "../../components/common/EmptyState.jsx";
 import ConfirmDialog from "../../components/common/ConfirmDialog.jsx";
 import { ordersApi } from "../../api/services/orders.js";
@@ -57,16 +58,28 @@ export default function OrdersPage() {
     { key: "id", header: "Order #", render: (o) => `#${o.id}` },
     { key: "customer", header: "Customer", render: (o) => customerName(o.customer_id) },
     { key: "items", header: "Items", render: (o) => o.items.length },
-    { key: "total_amount", header: "Total", render: (o) => formatCurrency(o.total_amount) },
-    { key: "status", header: "Status", render: (o) => <Badge>{o.status}</Badge> },
+    {
+      key: "total_amount",
+      header: "Total",
+      render: (o) => <strong>{formatCurrency(o.total_amount)}</strong>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (o) => (
+        <Badge tone="ok">
+          <CheckCircle2 size={13} /> {o.status}
+        </Badge>
+      ),
+    },
     {
       key: "actions",
       header: "Actions",
-      width: 160,
+      width: 170,
       render: (o) => (
         <div className="row-actions">
           <Button variant="link" size="sm" onClick={() => openDetail(o.id)}>
-            View
+            <Eye size={14} /> View
           </Button>
           <Button
             variant="link"
@@ -74,7 +87,7 @@ export default function OrdersPage() {
             style={{ color: "var(--danger)" }}
             onClick={() => setDeleteTarget(o)}
           >
-            Cancel
+            <XCircle size={14} /> Cancel
           </Button>
         </div>
       ),
@@ -84,14 +97,19 @@ export default function OrdersPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>Orders</h2>
-        <Button onClick={() => setShowForm(true)}>+ Create Order</Button>
+        <div>
+          <h2>Orders</h2>
+          <p className="subtitle">{orders.length} orders placed</p>
+        </div>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus size={17} /> Create Order
+        </Button>
       </div>
 
       {loading ? (
-        <Spinner label="Loading orders…" />
+        <SkeletonTable />
       ) : orders.length === 0 ? (
-        <EmptyState>No orders yet. Create your first one.</EmptyState>
+        <EmptyState icon={ShoppingCart}>No orders yet. Create your first one.</EmptyState>
       ) : (
         <DataTable columns={columns} rows={orders} />
       )}

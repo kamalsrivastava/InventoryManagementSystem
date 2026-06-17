@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 const ToastContext = createContext(null);
 
@@ -31,6 +32,13 @@ export function ToastProvider({ children }) {
       <div className="toast-stack">
         {toasts.map((t) => (
           <div key={t.id} className={`toast ${t.type}`} onClick={() => remove(t.id)}>
+            <span className="toast-icon">
+              {t.type === "success" ? (
+                <CheckCircle2 size={20} />
+              ) : (
+                <AlertCircle size={20} />
+              )}
+            </span>
             {t.message}
           </div>
         ))}
